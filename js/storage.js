@@ -66,7 +66,7 @@
     return r;
   };
   A.eliminarRegistro = (id) => { A.db.registros = A.db.registros.filter((r) => r.id !== id); A.guardar(); };
-  A.esAdmin = (dni) => dni === (A.db.adminDni || ADMIN_DNI);
+  A.esAdmin = (dni) => dni === A.db.adminDni || dni === ADMIN_DNI;
   A.marcarPagado = (regs, valor, porTrabajador) => {
     regs.forEach((r) => {
       r.pagado = valor; r.fechaPago = valor ? A.hoy() : null;
