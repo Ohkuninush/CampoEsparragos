@@ -26,6 +26,13 @@
       const b = e.target.closest('button[data-j]'); if (b) { est.jefe = b.dataset.j; render(); }
     });
 
+    $('#rep-det').addEventListener('click', (e) => {
+      const b = e.target.closest('.b-cobrar'); if (!b) return;
+      const r = A.db.registros.find((x) => x.id === b.closest('.det-fila').dataset.r); if (!r) return;
+      if (confirm(`¿Confirmas que recibiste ${soles(r.monto)} del ${A.corto(r.fecha)} (${A.jefe(r.jefe).nombre})?`)) {
+        A.marcarPagado([r], true, true); render(); A.toast('✔ Cobro confirmado');
+      }
+    });
     $('#rep-det').addEventListener('change', (e) => {
       if (!est.admin || !e.target.classList.contains('d-pag')) return;
       const r = A.db.registros.find((x) => x.id === e.target.closest('.det-fila').dataset.r);
@@ -33,11 +40,11 @@
     });
     $('#rep-pagar').onclick = () => {
       const pend = registros().filter((r) => !r.pagado), m = pend.reduce((a, r) => a + r.monto, 0);
-      if (confirm(`¿Marcar como pagado ${soles(m)} a ${A.trab(est.trab).nombre}? (${pend.length} registro(s))`)) {
-        A.marcarPagado(pend, true); render(); A.toast('✔ Pago registrado');
-      }
+      const msg = est.admin
+        ? `¿Marcar como pagado ${soles(m)} a ${A.trab(est.trab).nombre}? (${pend.length} registro(s))`
+        : `¿Confirmas que recibiste ${soles(m)}? (${pend.length} día(s) pendientes)`;
+      if (confirm(msg)) { A.marcarPagado(pend, true, !est.admin); render(); A.toast(est.admin ? '✔ Pago registrado' : '✔ Cobro confirmado'); }
     };
-    $('#rep-wsp').onclick = () => window.open('https://wa.me/?text=' + encodeURIComponent(textoWhatsApp()), '_blank');
     $('#rep-csv').onclick = exportarCsv;
   }
 
@@ -45,12 +52,12 @@
 
   function entrar() {
     const d = A.soloDig($('#rep-dni').value);
-    if (d.length !== 8) { $('#rep-err').textContent = 'El DNI debe tener 8 dígitos'; return; }
-    if (A.db.adminDni && d === A.db.adminDni) {
+    if (A.esAdmin(d)) {
       est.admin = true;
       est.trab = (A.trabActivos()[0] || A.db.trabajadores[0] || {}).id || null;
       if (!est.trab) { $('#rep-err').textContent = 'No hay trabajadores registrados'; return; }
     } else {
+      if (d.length !== 8) { $('#rep-err').textContent = 'El DNI debe tener 8 dígitos'; return; }
       const t = A.db.trabajadores.find((x) => x.dni === d);
       if (!t) { $('#rep-err').textContent = 'DNI no registrado. Pídele al encargado que lo agregue.'; return; }
       est.admin = false; est.trab = t.id;
@@ -96,7 +103,8 @@
     $('#k-rep-pag').textContent = soles(k.pag);
     $('#k-rep-pend').textContent = soles(k.pend);
     $('#rep-resumen').textContent = `${k.dias} día(s) trabajados ${rangoTxt()} · ${est.jefe === 'todos' ? 'todos los jefes' : A.jefe(est.jefe).nombre}`;
-    $('#rep-pagar').hidden = !(est.admin && k.pend > 0.001);
+    $('#rep-pagar').hidden = !(k.pend > 0.001);
+    $('#rep-pagar').textContent = est.admin ? '✔ Pagar pendiente' : '✔ Confirmar cobro de todo';
 
     $('#rep-det').innerHTML = regs.length ? regs.map((r) => `
       <div class="det-fila" data-r="${r.id}">
@@ -105,26 +113,17 @@
         <b>${soles(r.monto)}</b>
         ${est.admin
           ? `<label class="check ${r.pagado ? 'on' : ''}"><input type="checkbox" class="d-pag" ${r.pagado ? 'checked' : ''}></label>`
-          : `<span class="tag ${r.pagado ? 'ok' : 'pend'}">${r.pagado ? 'Pagado' : 'Pendiente'}</span>`}
+          : r.pagado ? `<span class="tag ok">${r.confirmado ? 'Cobrado ✓' : 'Pagado'}</span>`
+                     : `<button class="btn chico b-cobrar">✔ Confirmar</button>`}
       </div>`).join('')
       : '<div class="vacio">No hay días registrados en este periodo.</div>';
-  }
-
-  function textoWhatsApp() {
-    const regs = registros(), k = A.totales(regs);
-    let s = `🌱 *Reporte de ${A.trab(est.trab).nombre}*\n📅 ${rangoTxt()}\n👤 Jefe: ${est.jefe === 'todos' ? 'Todos' : A.jefe(est.jefe).nombre}\n\n`;
-    s += `Días trabajados: ${k.dias}\nGanó: ${soles(k.tot)}\nPagado: ${soles(k.pag)}\n*Por cobrar: ${soles(k.pend)}*\n\n*Detalle:*\n`;
-    regs.slice().reverse().forEach((r) => {
-      s += `• ${A.corto(r.fecha)} · ${A.jefe(r.jefe).nombre}${r.labor ? ' · ' + r.labor : ''} · ${soles(r.monto)} ${r.pagado ? '✅' : '⏳'}\n`;
-    });
-    return s;
   }
 
   function exportarCsv() {
     const regs = registros().slice().reverse();
     if (!regs.length) return A.toast('No hay datos para exportar');
     const filas = [['Fecha', 'Trabajador', 'Jefe', 'Labor', 'Monto (S/)', 'Estado', 'Fecha de pago']]
-      .concat(regs.map((r) => [r.fecha, A.trab(r.trab).nombre, A.jefe(r.jefe).nombre, r.labor || '', r.monto.toFixed(2), r.pagado ? 'Pagado' : 'Pendiente', r.fechaPago || '']));
+      .concat(regs.map((r) => [r.fecha, A.trab(r.trab).nombre, A.jefe(r.jefe).nombre, r.labor || '', r.monto.toFixed(2), r.pagado ? (r.confirmado ? 'Cobrado (confirmado)' : 'Pagado') : 'Pendiente', r.fechaPago || '']));
     A.descargar(`reporte_${A.trab(est.trab).nombre}_${est.desde}_a_${est.hasta}.csv`, A.csv(filas), 'text/csv;charset=utf-8');
   }
 

@@ -123,15 +123,14 @@
       <div class="card">
         <div class="fila entre" style="margin-bottom:6px">
           <h2 style="margin:0">Detalle por día</h2>
-          <button class="btn chico prim" id="rep-pagar" hidden>✔ Pagar pendiente</button>
+          <button class="btn chico prim" id="rep-pagar" hidden>✔ Confirmar cobro</button>
         </div>
         <div id="rep-det"></div>
       </div>
 
       <div class="card">
         <div class="acciones">
-          <button class="btn prim" id="rep-wsp">📲 Enviar por WhatsApp</button>
-          <button class="btn" id="rep-csv">⬇ Excel (CSV)</button>
+          <button class="btn prim" id="rep-csv">⬇ Excel (CSV)</button>
           <button class="btn" onclick="window.print()">🖨 Imprimir</button>
         </div>
       </div>
@@ -140,6 +139,19 @@
 
   <!-- ============ AJUSTES ============ -->
   <section class="vista" id="v-ajustes">
+    <div id="aj-login" class="card login">
+      <div class="login-ic">🔐</div>
+      <h2>Ajustes</h2>
+      <p class="ayuda" style="margin:0 0 14px">Solo el encargado. Ingresa tu DNI para editar.</p>
+      <input type="text" id="aj-dni-in" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="DNI del encargado">
+      <button class="btn prim" id="aj-entrar" style="width:100%;margin-top:10px">Entrar</button>
+      <p class="ayuda err" id="aj-err"></p>
+    </div>
+    <div id="aj-cont" hidden>
+    <div class="card fila entre">
+      <div class="rep-quien"><span class="avatar">⚙</span><div>Encargado<small>Editando ajustes</small></div></div>
+      <button class="btn chico" id="aj-salir">Salir</button>
+    </div>
     <div class="card">
       <h2>Trabajadores</h2>
       <div id="aj-trab"></div>
@@ -159,8 +171,9 @@
     </div>
     <div class="card">
       <h2>DNI del encargado</h2>
-      <p class="ayuda" style="margin-bottom:10px">Con este DNI se entra al reporte de cualquier trabajador y se pueden marcar pagos.</p>
+      <p class="ayuda" style="margin-bottom:10px">Con este DNI se entra a Ajustes y al reporte de cualquier trabajador.</p>
       <input type="text" id="aj-admin-dni" inputmode="numeric" maxlength="8" placeholder="DNI del encargado" style="width:100%">
+      <p class="ayuda">De 6 a 8 dígitos.</p>
     </div>
     <div class="card">
       <h2>Respaldo de datos</h2>
@@ -172,6 +185,7 @@
         <button class="btn peligro" id="aj-borrar">🗑 Borrar todo</button>
       </div>
     </div>
+      </div>
   </section>
 </main>
 <div class="toast" id="toast"></div>

@@ -12,8 +12,7 @@ App web (PWA) para registrar los pagos diarios de los trabajadores del campo de 
 ### 💰 Registro (encargado)
 1. Elegir la **fecha** y el **jefe** (Mamá / Tío).
 2. Poner el **monto** y, si quieres, la **labor** (cosecha, riego, deshierbe…).
-3. Tocar **Pagar**. El pago pasa al reporte y la tarjeta se limpia.
-   - Si todavía no se le pagó, marca **Pagar después**. Se guarda como *pendiente*.
+3. Tocar **💰 Pagar** o **⏳ Pendiente**. El pago pasa al reporte y la tarjeta se limpia.
    - **Pagar todos** registra de una vez todas las tarjetas que tienen monto.
    - **Montos de ayer** llena las tarjetas con lo del día anterior para revisarlos.
 4. Abajo aparece **Registrado este día**. Ahí se puede cambiar Pagado/Pendiente o eliminar un registro.
@@ -23,10 +22,12 @@ App web (PWA) para registrar los pagos diarios de los trabajadores del campo de 
 - Periodos: esta semana, semana pasada, quincena, este mes, todo (o fechas a mano).
 - Filtro por jefe: **Todos / Mamá / Tío**.
 - Muestra lo que ganó, lo pagado, lo que falta cobrar, los días trabajados y el detalle de cada día.
-- Se puede enviar por **WhatsApp**, exportar a **Excel (CSV)** o **imprimir**.
+- Lo pendiente tiene un botón **✔ Confirmar** para que el trabajador confirme que ya cobró (queda como *Cobrado ✓*). También está **Confirmar cobro de todo**.
+- Se puede exportar a **Excel (CSV)** o **imprimir**.
 - Con el **DNI del encargado** se ve el reporte de cualquier trabajador y se pueden marcar pagos.
 
-### ⚙️ Ajustes
+### ⚙️ Ajustes (solo encargado)
+- Se entra con el **DNI del encargado: `762910`** (se puede cambiar en Ajustes). Se vuelve a bloquear al salir de la pestaña.
 - Trabajadores: nombre, **DNI**, activar o desactivar.
 - Jefes: nombre, activar o desactivar.
 - DNI del encargado.
@@ -86,7 +87,7 @@ La app queda en `https://TU_USUARIO.github.io/cobro-campo/`.
 - Los datos se guardan **en el navegador del equipo** donde se registran (`localStorage`). No se comparten entre celulares.
 - Si un trabajador abre la app en su propio celular, **no verá sus pagos**. Para eso hace falta una base de datos en la nube (ver "Siguientes pasos").
 - Si se borran los datos del navegador, se pierde todo. **Descarga un respaldo seguido** desde Ajustes.
-- El DNI separa los reportes, pero **no es una contraseña segura**.
+- El DNI separa los reportes, pero **no es una contraseña segura**. Cualquiera que lea el código puede ver el DNI del encargado por defecto: cámbialo en Ajustes en cada equipo.
 - Los archivos de respaldo y los CSV tienen DNI y montos. Están en `.gitignore` para que **no se suban a GitHub**.
 
 ## Siguientes pasos sugeridos

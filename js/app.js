@@ -12,7 +12,9 @@
   A.irA = (tab) => {
     A.$$('nav.tabs button').forEach((b) => b.classList.toggle('on', b.dataset.tab === tab));
     A.$$('.vista').forEach((v) => v.classList.toggle('on', v.id === 'v-' + tab));
-    if (tab !== 'reporte') A.reporte.salir(); // al salir del reporte se cierra la sesión del DNI
+    // al salir de Reporte o Ajustes se cierra la sesión del DNI
+    if (tab !== 'reporte') A.reporte.salir();
+    if (tab !== 'ajustes') A.ajustes.cerrar();
     vistas[tab].render();
     window.scrollTo(0, 0);
   };

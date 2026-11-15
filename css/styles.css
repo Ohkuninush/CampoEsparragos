@@ -124,8 +124,12 @@ h2 small{font-weight:400;color:var(--suave)}
 
 /* ---- v2: registro con botón Pagar ---- */
 .trab .nombre small{display:block;font-weight:500;font-size:.78rem;color:var(--verde)}
-.trab .b-pagar{grid-column:1/-1;width:100%;font-size:1rem}
-.trab .b-pagar.pend{background:var(--ambar);border-color:var(--ambar)}
+.trab .nombre{grid-column:1/-1}
+.trab .botones{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.trab .botones .btn{width:100%;font-size:1rem;white-space:nowrap;padding:10px 8px}
+.b-pend{background:var(--ambar-cl);color:var(--ambar);border-color:#f0d9a8}
+@media (max-width:767px){.trab .botones .btn{min-height:38px;padding:6px 8px;font-size:.9rem;border-radius:9px}}
+.b-cobrar{background:var(--ambar-cl);color:var(--ambar);border-color:#f0d9a8;white-space:nowrap}
 .trab.flash{animation:flash .6s}
 @keyframes flash{0%{background:#cfe8c3}100%{background:#fff}}
 .hecho{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px dashed var(--borde);font-size:.92rem}

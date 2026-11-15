@@ -1,6 +1,6 @@
 /* Service worker: guarda la app para que abra sin internet.
    Cambia VERSION cada vez que publiques cambios para que los celulares se actualicen. */
-const VERSION = 'cobro-campo-v2.0.0';
+const VERSION = 'cobro-campo-v2.2.0';
 const ARCHIVOS = [
   './', './index.html', './manifest.webmanifest', './css/styles.css',
   './js/utils.js', './js/storage.js', './js/registro.js', './js/reporte.js', './js/ajustes.js', './js/app.js',

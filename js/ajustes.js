@@ -1,11 +1,17 @@
-/* Pantalla de Ajustes: trabajadores (con DNI), jefes, DNI del encargado y respaldo */
+/* Pantalla de Ajustes (solo encargado, con DNI): trabajadores, jefes, DNI del encargado y respaldo */
 (function (A) {
   'use strict';
   const { $, esc } = A;
   const coleccion = (tipo) => (tipo === 't' ? A.db.trabajadores : A.db.jefes);
+  let abierto = false; // se pide el DNI del encargado cada vez que se entra
 
   function init() {
     const v = $('#v-ajustes');
+
+    $('#aj-dni-in').addEventListener('input', (e) => { e.target.value = A.soloDig(e.target.value).slice(0, 8); $('#aj-err').textContent = ''; });
+    $('#aj-dni-in').addEventListener('keydown', (e) => { if (e.key === 'Enter') entrar(); });
+    $('#aj-entrar').onclick = entrar;
+    $('#aj-salir').onclick = () => { cerrar(); render(); };
 
     v.addEventListener('change', (e) => {
       const it = e.target.closest('.aj-item'); if (!it) return;
@@ -39,8 +45,9 @@
 
     $('#aj-admin-dni').addEventListener('change', (e) => {
       const d = A.soloDig(e.target.value);
-      if (!d) { A.db.adminDni = ''; A.guardar(); return A.toast('DNI de encargado quitado'); }
-      if (!dniValido(d, 'admin')) { e.target.value = A.db.adminDni || ''; return; }
+      if (d === A.db.adminDni) return;
+      if (d.length < 6) { A.toast('El DNI del encargado debe tener de 6 a 8 dígitos'); e.target.value = A.db.adminDni; return; }
+      if (!dniValido(d, 'admin') || !confirm(`¿Cambiar el DNI del encargado a ${d}? Desde ahora Ajustes se abrirá con ese DNI.`)) { e.target.value = A.db.adminDni; return; }
       A.db.adminDni = d; A.guardar(); A.toast('✓ DNI de encargado guardado');
     });
 
@@ -54,7 +61,17 @@
     };
   }
 
+  function entrar() {
+    const d = A.soloDig($('#aj-dni-in').value);
+    if (!A.esAdmin(d)) { $('#aj-err').textContent = 'Este DNI no tiene permiso para editar.'; return; }
+    $('#aj-dni-in').value = ''; abierto = true; render();
+  }
+  function cerrar() { abierto = false; }
+
   function render() {
+    $('#aj-login').hidden = abierto;
+    $('#aj-cont').hidden = !abierto;
+    if (!abierto) return;
     const item = (o, tipo) => `<div class="aj-item ${o.activo === false ? 'inactivo' : ''}" data-id="${o.id}" data-tipo="${tipo}">
         <input type="text" value="${esc(o.nombre)}" class="aj-nombre" aria-label="Nombre">
         ${tipo === 't' ? `<input type="text" class="aj-dni" inputmode="numeric" maxlength="8" placeholder="DNI" value="${esc(o.dni || '')}" aria-label="DNI">` : ''}
@@ -66,7 +83,7 @@
   }
 
   function dniValido(d, excluir) {
-    if (d.length !== 8) { A.toast('El DNI debe tener 8 dígitos'); return false; }
+    if (excluir !== 'admin' && d.length !== 8) { A.toast('El DNI debe tener 8 dígitos'); return false; }
     const usado = (A.db.adminDni === d && excluir !== 'admin') || A.db.trabajadores.some((t) => t.dni === d && t.id !== excluir);
     if (usado) { A.toast('Ese DNI ya está usado'); return false; }
     return true;
@@ -95,5 +112,5 @@
     rd.readAsText(f);
   }
 
-  A.ajustes = { init, render };
+  A.ajustes = { init, render, cerrar };
 })(window.App);

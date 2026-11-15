@@ -7,17 +7,19 @@
  *   version, adminDni,
  *   jefes:        [{ id, nombre, activo }],
  *   trabajadores: [{ id, nombre, dni, activo }],
- *   registros:    [{ id, creado, fecha, jefe, trab, monto, labor, pagado, fechaPago }]
+ *   registros:    [{ id, creado, fecha, jefe, trab, monto, labor, pagado, fechaPago, confirmado }]
+ *   confirmado = true cuando el trabajador confirmó el cobro desde su reporte
  * }
  */
 (function (A) {
   'use strict';
   const KEY = 'cobro_campo_esparragos_v1';
-  const VERSION = 2;
+  const VERSION = 3;
+  const ADMIN_DNI = '762910'; // DNI del encargado para entrar a Ajustes (se puede cambiar en Ajustes)
 
   A.base = () => ({
     version: VERSION,
-    adminDni: '',
+    adminDni: ADMIN_DNI,
     jefes: [
       { id: 'j1', nombre: 'Mamá', activo: true },
       { id: 'j2', nombre: 'Tío', activo: true }
@@ -34,6 +36,7 @@
     A.db = A.validarDb(d) ? d : A.base();
     // Migración v1 -> v2: agrega fecha de creación a registros antiguos
     A.db.registros.forEach((r) => { if (!r.creado) r.creado = r.fecha + 'T12:00:00'; });
+    if (!A.db.adminDni) A.db.adminDni = ADMIN_DNI;
     A.db.version = VERSION;
   };
 
@@ -63,8 +66,12 @@
     return r;
   };
   A.eliminarRegistro = (id) => { A.db.registros = A.db.registros.filter((r) => r.id !== id); A.guardar(); };
-  A.marcarPagado = (regs, valor) => {
-    regs.forEach((r) => { r.pagado = valor; r.fechaPago = valor ? A.hoy() : null; });
+  A.esAdmin = (dni) => dni === (A.db.adminDni || ADMIN_DNI);
+  A.marcarPagado = (regs, valor, porTrabajador) => {
+    regs.forEach((r) => {
+      r.pagado = valor; r.fechaPago = valor ? A.hoy() : null;
+      r.confirmado = !!(valor && porTrabajador);
+    });
     A.guardar();
   };
 })(window.App);
