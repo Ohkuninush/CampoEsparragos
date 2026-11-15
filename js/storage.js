@@ -15,7 +15,7 @@
   'use strict';
   const KEY = 'cobro_campo_esparragos_v1';
   const VERSION = 3;
-  const ADMIN_DNI = '762910'; // DNI del encargado para entrar a Ajustes (se puede cambiar en Ajustes)
+  const ADMIN_DNI = '72691095'; // DNI del encargado para entrar a Ajustes (se puede cambiar en Ajustes)
 
   A.base = () => ({
     version: VERSION,
